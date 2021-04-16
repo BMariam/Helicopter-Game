@@ -149,7 +149,7 @@ int main() {
                     gameOver.draw(window);
                     window.display();
                     sf :: sleep(sf :: seconds(3)); 
-                    helicopter.resetHelicopter(); // Reset helicopter x and y positions
+                    helicopter.resetHelicopter(); // Reset helicopter y position
                     for (int i = 0; i < wallCount; ++i) {
                         // Reset each wall x and y positions
                         walls[i] -> resetWall(i * (Init :: width / wallCount));

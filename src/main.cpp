@@ -2,80 +2,53 @@
 // Folder: src
 
 #include "gameInit.h"
+#include "text.h"
 #include "helicopter.h"
 #include "wall.h"
 #include "button.h"
+#include "collision.h"
 #include <iostream>
-
-bool collision(sf :: Sprite& sprite1, sf :: Sprite& sprite2) {
-	sf :: FloatRect shape1 = sprite1.getGlobalBounds();
-	sf :: FloatRect shape2 = sprite2.getGlobalBounds();
-	if (sprite1.getPosition().x < sprite2.getPosition().x + shape2.width 
-			&& sprite1.getPosition().x + shape1.width > sprite2.getPosition().x 
-			&& sprite1.getPosition().y < sprite2.getPosition().y + shape2.height 
-			&& shape1.height + sprite1.getPosition().y > sprite2.getPosition().y
-			|| sprite1.getPosition().y + shape1.height >= Init :: height) {
-		return true;
-	}
-	return false;
-}
+#include <vector>
 
 int main() {
 	sf :: RenderWindow window(sf :: VideoMode(Init :: width, Init :: height), 
 			"Helicopter Game", sf :: Style :: Titlebar | sf :: Style :: Close);
-
 
 	sf :: Font font;   
 	if (!font.loadFromFile("res/arial.ttf")) {
 		std :: cout << "Can't load font" << std :: endl;
 	}
 
-	sf :: Text levelText;
+	Text levelText("Level: " + std :: to_string(Init :: level),
+			20, sf :: Color :: Black, 10, 0);
 	levelText.setFont(font);
-	levelText.setString("Level: " + std :: to_string(Init :: level));
-	levelText.setCharacterSize(20);
-	levelText.setFillColor(sf :: Color :: Black);
-	levelText.setPosition(10, 0);
 
-	sf :: Text scoreText;
+	Text scoreText("Score: " + std :: to_string(static_cast<int>(Init :: score)),
+			20, sf :: Color :: Black, Init :: width / 4, 0);
 	scoreText.setFont(font);
-	scoreText.setString("Score: " + std :: to_string((int)Init :: score));
-	scoreText.setCharacterSize(20);
-	scoreText.setFillColor(sf :: Color :: Black);
-	scoreText.setPosition(Init :: width / 4, 0);
 
-	sf :: Text highScoreText;
-	highScoreText.setFont(font);
-	highScoreText.setString("High score: " 
-			+ std :: to_string((int)Init :: highScore));
-	highScoreText.setCharacterSize(20);
-	highScoreText.setFillColor(sf :: Color :: Black);
-	highScoreText.setPosition(Init :: width / 2, 0);
+	Text highestScoreText("Highest score: " + std :: to_string(static_cast<int>(Init :: highScore)),
+			 20, sf :: Color :: Black, Init :: width / 2, 0);
+	highestScoreText.setFont(font);
 
-	sf :: Texture backgroundTexture_1;
-	sf :: Texture backgroundTexture_2;
+	sf :: Texture backgroundTexture;
 	sf :: Texture skyTexture;
 
-	backgroundTexture_1.loadFromFile("res/images/background_1.png");
-	backgroundTexture_2.loadFromFile("res/images/background_2.png");
+	backgroundTexture.loadFromFile("res/images/background.png");
 	skyTexture.loadFromFile("res/images/sky.jpg");
 
-	sf :: Sprite background_1(backgroundTexture_1);
-	background_1.setPosition(0, 
-			Init :: height - backgroundTexture_1.getSize().y);
-
-	sf :: Sprite background_2(backgroundTexture_2);
-	background_2.setPosition(Init :: width / 2, 
-			Init :: height - backgroundTexture_1.getSize().y);
+	sf :: Sprite background(backgroundTexture);
+	background.setPosition(0, 
+			Init :: height - backgroundTexture.getSize().y);
 
 	sf :: Sprite sky(skyTexture);
 	sky.setPosition(0, 0);
 
 	Helicopter helicopter;
 	int wallCount = 4;
-	Wall* walls[wallCount];
+	std::vector<Wall*> walls;
 	for (int i = 0; i < wallCount; ++i) {
-		walls[i] = new Wall(i * (Init :: width / wallCount));
+		walls.push_back(new Wall(i * (Init :: width / wallCount)));
 	}
 
 	Button playButton("Play", 30, sf :: Color(241, 170, 32), 
@@ -104,15 +77,14 @@ int main() {
 			}            
 		} 
 		window.clear(sf :: Color(135, 206, 235));
-		window.draw(background_1);
-		window.draw(background_2);
+		window.draw(background);
 		window.draw(sky);  
-		window.draw(levelText);   
-		window.draw(scoreText);  
-		window.draw(highScoreText);
-		for (int i = 0; i < wallCount; ++i) { 
+		levelText.draw(window);
+		scoreText.draw(window);
+		highestScoreText.draw(window);
+		for (int i = 0; i < wallCount; ++i) {
 			window.draw(*(walls[i] -> wallSprite));
-		}         
+		}
 		window.draw(*(helicopter.helicopterSprite));
 		sf :: sleep(sf :: milliseconds(100)); 
 		if (Init :: isGameActive) {        
@@ -125,7 +97,7 @@ int main() {
 					scoreText.setString("Score: " + std :: to_string((int)Init :: score));
 					Init :: highScore = Init :: score <= Init :: highScore 
 						? Init :: highScore : Init :: score;
-					highScoreText.setString("High score: " 
+					highestScoreText.setString("Highest score: " 
 							+ std :: to_string((int)Init :: highScore));
 				}
 			if (Init :: score / Init :: level >= 200) {
@@ -133,12 +105,12 @@ int main() {
 				levelText.setString("Level: " + std :: to_string(Init :: level));
 			}
 			for (int i = 0; i < wallCount; ++i) { 
-				if (collision(*(helicopter.helicopterSprite), 
+				if (Collision :: checkCollision(*(helicopter.helicopterSprite), 
 							*(walls[i] -> wallSprite))) {
 					Init :: isGameActive = false;
 					std :: string gameOverText = "Game Over\nScore: " 
 						+ std :: to_string((int)Init :: score) 
-						+ "\nHigh Score: " 
+						+ "\nHighest Score: " 
 						+ std :: to_string((int)Init :: highScore);
 					RectShape gameOver(gameOverText, 25, sf :: Color :: Red,
 							sf :: Vector2f(Init :: width / 4.0f, Init :: height / 4.0f),
@@ -164,11 +136,6 @@ int main() {
 			scoreText.setString("Score: " + std :: to_string((int)Init :: score));
 		}
 		window.display();               
-	}
-
-	for (int i = 0; i < wallCount; ++i) {
-		delete walls[i];
-		walls[i] = nullptr;
 	}
 
 	return 0;

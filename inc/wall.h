@@ -13,6 +13,7 @@ class Wall {
 		void move();
 		void show();
 		void resetWall(int positionX);
+		~Wall();
 	private:
 		int posX;
 		int posY;

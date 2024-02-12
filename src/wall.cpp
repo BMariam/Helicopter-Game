@@ -6,14 +6,14 @@
 
 Wall :: Wall(int posX) {
 	this -> posX = posX; 
-	setRandomYPosition();  
 	wallTexture.loadFromFile("res/images/wall.png");
+	setRandomYPosition();  
 	wallSprite = new sf :: Sprite(wallTexture);
 	show();
 }
 
 void Wall :: setRandomYPosition() {
-	this -> posY = rand() % (Init :: height - wallTexture.getSize().y + 1); 
+	this -> posY = (rand() % (Init :: height - wallTexture.getSize().y)) + 1; 
 }
 
 void Wall :: move() {
@@ -33,4 +33,8 @@ void Wall :: resetWall(int positionX) {
 	posX = positionX;
 	setRandomYPosition();
 	show();
+}
+
+Wall :: ~Wall() {
+	delete wallSprite;
 }

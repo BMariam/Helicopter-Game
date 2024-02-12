@@ -47,6 +47,7 @@ int main() {
 	Helicopter helicopter;
 	int wallCount = 4;
 	std::vector<Wall*> walls;
+	std :: srand(std :: time(0));
 	for (int i = 0; i < wallCount; ++i) {
 		walls.push_back(new Wall(i * (Init :: width / wallCount)));
 	}
@@ -66,7 +67,9 @@ int main() {
 						|| event.type == sf :: Event :: KeyReleased)
 					&& (event.key.code == sf :: Keyboard :: Up
 						|| event.key.code == sf :: Keyboard :: Down)) {
-				helicopter.handleEvent(event);
+				if (Init :: isGameActive) {
+					helicopter.handleEvent(event);
+				}
 			}
 			if (event.type == sf :: Event :: MouseButtonPressed) {
 				if (event.mouseButton.button == sf :: Mouse :: Left) {
@@ -136,6 +139,9 @@ int main() {
 			scoreText.setString("Score: " + std :: to_string((int)Init :: score));
 		}
 		window.display();               
+	}
+	for (int i = 0; i < wallCount; ++i) {
+		delete walls[i];
 	}
 
 	return 0;

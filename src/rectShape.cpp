@@ -3,11 +3,9 @@
 
 #include "gameInit.h"
 #include "rectShape.h"
-#include <iostream>
 
 RectShape :: RectShape(std :: string text, int charSize, sf :: Color textColor, 
-		sf :: Vector2f rectSize, sf :: Color rectColor) 
-{
+		sf :: Vector2f rectSize, sf :: Color rectColor) {
 	this -> text.setString(text);
 	this -> text.setCharacterSize(charSize);
 	this -> text.setFillColor(textColor);

@@ -11,6 +11,7 @@ class Button : public RectShape {
 	public:
 		Button(std :: string, int, sf :: Color, sf :: Vector2f, sf :: Color);
 		bool isMouseClicked(sf :: RenderWindow& window);          
+		~Button() = default;
 };
 
 #endif 

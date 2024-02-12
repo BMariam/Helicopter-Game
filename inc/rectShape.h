@@ -12,6 +12,7 @@ class RectShape {
 		void setPosition();
 		void draw(sf :: RenderWindow& window);
 		void setFont(sf :: Font& font);
+		~RectShape() = default;
 	protected:
 		sf :: Text text;    
 		sf :: RectangleShape rect;           
